@@ -12,6 +12,8 @@ spec:
       labels:
         app: demo
     spec:
+      imagePullSecrets:
+        - name: docker-registry-secret
       containers:
         - name: demo
           image: ${REGISTRY}/jenkins-demo.jar:${IMAGE_TAG}
