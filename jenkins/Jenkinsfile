@@ -1,9 +1,6 @@
 pipeline {
 	environment {
-		REGISTRY = ''
 		IMAGE_NAME = 'jenkins-demo'
-		REGISTRY_CREDENTIALS = 'docker-registry-credentials'
-		KUBECONFIG=credentials('')
 	}
 
 	stages {
@@ -23,8 +20,8 @@ pipeline {
 	stage('Build Docker Image') {
 			steps {
 				script {
-					sh "docker build -t ${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER} ."
-					sh "docker tag ${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER} ${REGISTRY}/${IMAGE_NAME}:latest"
+					docker.build("${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}")
+					docker.tag("${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}", "${DOCKER_REGISTRY}/${IMAGE_NAME}:latest")
 				}
 			}
 		}
@@ -32,9 +29,9 @@ pipeline {
 		stage('Push Docker Image') {
 			steps {
 				script {
-					docker.withRegistry("https://${REGISTRY}", REGISTRY_CREDENTIALS) {
-						sh "docker push ${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}"
-						sh "docker push ${REGISTRY}/${IMAGE_NAME}:latest"
+					docker.withRegistry("https://${DOCKER_REGISTRY}", DOCKER_REGISTRY_CREDENTIALS) {
+						docker.image("${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}").push()
+						docker.image("${DOCKER_REGISTRY}/${IMAGE_NAME}:latest").push()
 					}
 				}
 			}
@@ -43,10 +40,10 @@ pipeline {
 	stage('Deploy to Kubernetes') {
 		steps {
 			script {
-				withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG')]) {
+				withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS_FILE}", variable: 'KUBECONFIG')]) {
 					sh """
                     		kubectl --kubeconfig=${KUBECONFIG} set image deployment/${IMAGE_NAME} \
-                        		${IMAGE_NAME}=${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}
+                        		${IMAGE_NAME}=${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}
                     		kubectl --kubeconfig=${KUBECONFIG} rollout status deployment/${IMAGE_NAME}
                 		"""
 				}
