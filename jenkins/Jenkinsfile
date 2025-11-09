@@ -27,8 +27,10 @@ pipeline {
 		stage('Build Docker Image') {
 			steps {
 				unstash 'app-jar'
-				def appImage = docker.build("${IMAGE_NAME}:${BUILD_NUMBER}")
-				appImage.tag "${IMAGE_NAME}:latest"
+				script {
+					def appImage = docker.build("${IMAGE_NAME}:${BUILD_NUMBER}")
+					appImage.tag "${IMAGE_NAME}:latest"
+				}
 			}
 		}
 
