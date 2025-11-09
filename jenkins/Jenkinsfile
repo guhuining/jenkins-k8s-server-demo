@@ -25,7 +25,8 @@ pipeline {
 			steps {
 				unstash 'app-jar'
 				script {
-					 docker.build "${IMAGE_NAME}:${BUILD_NUMBER}"
+					def appImage = docker.build("${IMAGE_NAME}:${BUILD_NUMBER}")
+					appImage.tag "${IMAGE_NAME}:latest"
 				}
 			}
 		}
@@ -33,13 +34,9 @@ pipeline {
 		stage('Push Docker Image') {
 			steps {
 				script {
-					sh """
-							docker tag "${IMAGE_NAME}:${BUILD_NUMBER}" "${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}"
-							docker tag "${IMAGE_NAME}:${BUILD_NUMBER}" "${DOCKER_REGISTRY}/${IMAGE_NAME}:latest"
-						"""
 					docker.withRegistry("https://${DOCKER_REGISTRY}", DOCKER_REGISTRY_CREDENTIALS) {
-						docker.image("${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}").push()
-						docker.image("${DOCKER_REGISTRY}/${IMAGE_NAME}:latest").push()
+						docker.image("${IMAGE_NAME}:${BUILD_NUMBER}").push()
+						docker.image("${IMAGE_NAME}:latest").push()
 					}
 				}
 			}
