@@ -25,9 +25,9 @@ pipeline {
 			steps {
 				unstash 'app-jar'
 				script {
-					def appImage = docker.build("${IMAGE_NAME}:${BUILD_NUMBER}")
-					appImage.tag("${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}")
-					appImage.tag("${DOCKER_REGISTRY}/${IMAGE_NAME}:latest")
+					def appImage = docker.build("${IMAGE_NAME}:${BUILD_TAG}")
+					appImage.tag "${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_TAG}"
+					appImage.tag "${DOCKER_REGISTRY}/${IMAGE_NAME}:latest"
 				}
 			}
 		}
@@ -36,7 +36,7 @@ pipeline {
 			steps {
 				script {
 					docker.withRegistry("https://${DOCKER_REGISTRY}", DOCKER_REGISTRY_CREDENTIALS) {
-						docker.image("${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}").push()
+						docker.image("${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_TAG}").push()
 						docker.image("${DOCKER_REGISTRY}/${IMAGE_NAME}:latest").push()
 					}
 				}
@@ -49,7 +49,7 @@ pipeline {
 					withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS_FILE}", variable: 'KUBECONFIG')]) {
 						sh """
 								kubectl --kubeconfig=${KUBECONFIG} set image deployment/${IMAGE_NAME} \
-									${IMAGE_NAME}=${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}
+									${IMAGE_NAME}=${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_TAG}
 								kubectl --kubeconfig=${KUBECONFIG} rollout status deployment/${IMAGE_NAME}
 							"""
 					}
