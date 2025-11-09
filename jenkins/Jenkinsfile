@@ -29,22 +29,22 @@ pipeline {
 				unstash 'app-jar'
 				script {
 					def appImage = docker.build("${IMAGE_NAME}:${BUILD_NUMBER}")
-					appImage.tag "${IMAGE_NAME}:latest"
+					appImage.tag "latest"
 				}
 			}
 		}
 
-	//	stage('Push Docker Image') {
-	//		steps {
-	//			script {
-	//				docker.withRegistry("${DOCKER_REGISTRY}", "${DOCKER_REGISTRY_CREDENTIALS}") {
-	//					docker.image("${IMAGE_NAME}:${BUILD_NUMBER}").push()
-	//					docker.image("${IMAGE_NAME}:latest").push()
-	//				}
-	//			}
-	//		}
-	//	}
-	//
+		stage('Push Docker Image') {
+			steps {
+				script {
+					docker.withRegistry("${DOCKER_REGISTRY}", "${DOCKER_REGISTRY_CREDENTIALS}") {
+						docker.image("${IMAGE_NAME}:${BUILD_NUMBER}").push()
+						docker.image("${IMAGE_NAME}:latest").push()
+					}
+				}
+			}
+		}
+
 	//	stage('Deploy to Kubernetes') {
 	//		steps {
 	//			script {
