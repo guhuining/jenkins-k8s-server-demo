@@ -34,34 +34,6 @@ pipeline {
 			}
 		}
 
-		//stage('Push Docker Image') {
-		//	steps {
-		//		script {
-		//			docker.withRegistry("${DOCKER_REGISTRY}", "${DOCKER_REGISTRY_CREDENTIALS}") {
-		//				docker.image("${IMAGE_NAME}:${BUILD_NUMBER}").push()
-		//				docker.image("${IMAGE_NAME}:latest").push()
-		//			}
-		//		}
-		//	}
-		//}
 
-		stage('Deploy to Kubernetes') {
-			steps {
-				script {
-					//withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS_FILE}", variable: 'KUBECONFIG')]) {
-					//	sh """
-					//			kubectl --kubeconfig=${KUBECONFIG} set image deployment/${IMAGE_NAME} \
-					//				${IMAGE_NAME}=${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}
-					//			kubectl --kubeconfig=${KUBECONFIG} rollout status deployment/${IMAGE_NAME}
-					//		"""
-					//}
-					sh """
-						echo "${DOCKER_REGISTRY}"
-						echo "${DOCKER_REGISTRY_CREDENTIALS}"
-						echo "${KUBECONFIG}"
-					"""
-				}
-			}
-		}
 	}
 }
