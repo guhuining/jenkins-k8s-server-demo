@@ -18,11 +18,6 @@ pipeline {
 			}
 			steps {
 				sh 'mvn -B -DskipTests clean package'
-				sh """
-						echo "${DOCKER_REGISTRY}"
-						echo "${DOCKER_REGISTRY_CREDENTIALS}"
-						echo "${KUBECONFIG}"
-					"""
 				stash name: 'app-jar', includes: 'target/*.jar'
 			}
 		}
@@ -53,13 +48,18 @@ pipeline {
 		stage('Deploy to Kubernetes') {
 			steps {
 				script {
-					withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS_FILE}", variable: 'KUBECONFIG')]) {
-						sh """
-								kubectl --kubeconfig=${KUBECONFIG} set image deployment/${IMAGE_NAME} \
-									${IMAGE_NAME}=${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}
-								kubectl --kubeconfig=${KUBECONFIG} rollout status deployment/${IMAGE_NAME}
-							"""
-					}
+					//withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS_FILE}", variable: 'KUBECONFIG')]) {
+					//	sh """
+					//			kubectl --kubeconfig=${KUBECONFIG} set image deployment/${IMAGE_NAME} \
+					//				${IMAGE_NAME}=${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}
+					//			kubectl --kubeconfig=${KUBECONFIG} rollout status deployment/${IMAGE_NAME}
+					//		"""
+					//}
+					sh """
+						echo "${DOCKER_REGISTRY}"
+						echo "${DOCKER_REGISTRY_CREDENTIALS}"
+						echo "${KUBECONFIG}"
+					"""
 				}
 			}
 		}
