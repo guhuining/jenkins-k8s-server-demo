@@ -25,9 +25,9 @@ pipeline {
 			steps {
 				unstash 'app-jar'
 				script {
-					docker.build("${IMAGE_NAME}:${BUILD_NUMBER}")
-					docker.tag("${IMAGE_NAME}:${BUILD_NUMBER}", "${DOCKER_REGISTRY}/${IMAGE_NAME}:latest")
-					docker.tag("${IMAGE_NAME}:${BUILD_NUMBER}", "${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}")
+					def appImage = docker.build("${IMAGE_NAME}:${BUILD_NUMBER}")
+					appImage.tag("${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}")
+					appImage.tag("${DOCKER_REGISTRY}/${IMAGE_NAME}:latest")
 				}
 			}
 		}
