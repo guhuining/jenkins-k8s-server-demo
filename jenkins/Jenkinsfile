@@ -5,7 +5,7 @@ pipeline {
 		IMAGE_NAME = 'jenkins-demo'
 		DOCKER_REGISTRY = "${env.DOCKER_REGISTRY}"
 		DOCKER_REGISTRY_CREDENTIALS = "${env.DOCKER_REGISTRY_CREDENTIALS}"
-		KUBECONFIG_CREDENTIALS_FILE = "${env.KUBECONFIG_CREDENTIALS_FILE}"
+		KUBECONFIG = "${env.KUBECONFIG}"
 	}
 
 	stages {
@@ -21,7 +21,7 @@ pipeline {
 				sh """
 						echo "${DOCKER_REGISTRY}"
 						echo "${DOCKER_REGISTRY_CREDENTIALS}"
-						echo "${KUBECONFIG_CREDENTIALS_FILE}"
+						echo "${KUBECONFIG}"
 					"""
 				stash name: 'app-jar', includes: 'target/*.jar'
 			}
