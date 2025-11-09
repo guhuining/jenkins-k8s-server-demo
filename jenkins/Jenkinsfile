@@ -1,0 +1,56 @@
+pipeline {
+	environment {
+		REGISTRY = ''
+		IMAGE_NAME = 'jenkins-demo'
+		REGISTRY_CREDENTIALS = 'docker-registry-credentials'
+		KUBECONFIG=credentials('')
+	}
+
+	stages {
+		stage('Build Maven') {
+			agent {
+				docker {
+					image 'maven3.9.11-eclipse-temurin-21-noble'
+					args '-v /root/.m2:/root/.m2'
+				}
+			}
+			steps {
+				sh 'mvn -B -DskipTests clean package
+			}
+		}
+	}
+
+	stage('Build Docker Image') {
+			steps {
+				script {
+					sh "docker build -t ${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER} ."
+					sh "docker tag ${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER} ${REGISTRY}/${IMAGE_NAME}:latest"
+				}
+			}
+		}
+
+		stage('Push Docker Image') {
+			steps {
+				script {
+					docker.withRegistry("https://${REGISTRY}", REGISTRY_CREDENTIALS) {
+						sh "docker push ${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}"
+						sh "docker push ${REGISTRY}/${IMAGE_NAME}:latest"
+					}
+				}
+			}
+		}
+
+	stage('Deploy to Kubernetes') {
+		steps {
+			script {
+				withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG')]) {
+					sh """
+                    		kubectl --kubeconfig=${KUBECONFIG} set image deployment/${IMAGE_NAME} \
+                        		${IMAGE_NAME}=${REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}
+                    		kubectl --kubeconfig=${KUBECONFIG} rollout status deployment/${IMAGE_NAME}
+                		"""
+				}
+			}
+		}
+	}
+}
