@@ -18,6 +18,6 @@ public class JenkinsDemoApplication {
 
     @GetMapping("/hello")
     public String download() throws IOException {
-        return "world";
+        return "hello";
     }
 }
