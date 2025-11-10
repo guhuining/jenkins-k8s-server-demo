@@ -47,19 +47,20 @@ pipeline {
 
 		stage('Deploy to Kubernetes') {
 			agent {
-				docker {
-					image 'maven:3.9.11-eclipse-temurin-21-noble'
-					args '-v /root/.m2:/root/.m2'
+				node {
+					label 'base'
 				}
 			}
 			steps {
-				script {
-					withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS_FILE_ID}", variable: 'KUBECONFIG')]) {
-						sh """
+				container('base') {
+					script {
+						withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS_FILE_ID}", variable: 'KUBECONFIG')]) {
+							sh """
 								kubectl --kubeconfig=${KUBECONFIG} set image deployment/deployment-jenkins-demo \
 									${IMAGE_NAME}=${DOCKER_REGISTRY}/${DOCKER_REGISTRY_USERNAME}/${IMAGE_NAME}:${BUILD_NUMBER}
 								kubectl --kubeconfig=${KUBECONFIG} rollout status deployment/deployment-jenkins-demo
 							"""
+						}
 					}
 				}
 			}
