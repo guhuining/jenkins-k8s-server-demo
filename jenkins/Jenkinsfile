@@ -47,20 +47,19 @@ pipeline {
 
 		stage('Deploy to Kubernetes') {
 			agent {
-				node {
-					label 'base'
+				docker {
+					image 'alpine/k8s:latest'
+					args '--entrypoint=""'
 				}
 			}
 			steps {
-				container('base') {
-					script {
-						withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS_FILE_ID}", variable: 'KUBECONFIG')]) {
-							sh """
+				script {
+					withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS_FILE_ID}", variable: 'KUBECONFIG')]) {
+						sh """
 								kubectl --kubeconfig=${KUBECONFIG} set image deployment/deployment-jenkins-demo \
 									${IMAGE_NAME}=${DOCKER_REGISTRY}/${DOCKER_REGISTRY_USERNAME}/${IMAGE_NAME}:${BUILD_NUMBER}
 								kubectl --kubeconfig=${KUBECONFIG} rollout status deployment/deployment-jenkins-demo
 							"""
-						}
 					}
 				}
 			}
