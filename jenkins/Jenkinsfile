@@ -37,7 +37,7 @@ pipeline {
 		stage('Push Docker Image') {
 			steps {
 				script {
-					docker.withRegistry("${DOCKER_REGISTRY}", "${DOCKER_REGISTRY_CREDENTIALS}") {
+					docker.withRegistry("https://${DOCKER_REGISTRY}", "${DOCKER_REGISTRY_CREDENTIALS}") {
 						docker.image("${DOCKER_REGISTRY_USERNAME}/${IMAGE_NAME}:${BUILD_NUMBER}").push()
 						docker.image("${DOCKER_REGISTRY_USERNAME}/${IMAGE_NAME}:latest").push()
 					}
