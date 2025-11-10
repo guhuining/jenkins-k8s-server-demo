@@ -48,7 +48,8 @@ pipeline {
 		stage('Deploy to Kubernetes') {
 			agent {
 				docker {
-					image 'bitnami/kubectl:sha256-92bdaa5871ca46b1707280b1c65aaeda0cb4835b0c84c5458cb6ff54fa049d5d'
+					image 'maven:3.9.11-eclipse-temurin-21-noble'
+					args '-v /root/.m2:/root/.m2'
 				}
 			}
 			steps {
