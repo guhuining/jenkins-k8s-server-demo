@@ -48,7 +48,7 @@ pipeline {
 		stage('Deploy to Kubernetes') {
 			steps {
 				script {
-					withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS_FILE}", variable: 'KUBECONFIG')]) {
+					withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS_FILE_ID}", variable: 'KUBECONFIG')]) {
 						sh """
 								kubectl --kubeconfig=${KUBECONFIG} set image deployment/deployment-jenkins-demo \
 									${IMAGE_NAME}=${DOCKER_REGISTRY}/${DOCKER_REGISTRY_USERNAME}/${IMAGE_NAME}:${BUILD_NUMBER}
