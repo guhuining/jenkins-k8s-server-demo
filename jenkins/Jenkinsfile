@@ -56,9 +56,9 @@ pipeline {
 				script {
 					withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS_FILE_ID}", variable: 'KUBECONFIG')]) {
 						sh """
-								kubectl --kubeconfig=${KUBECONFIG} set image deployment/deployment-jenkins-demo \
+								kubectl -ndemo --kubeconfig=${KUBECONFIG} set image deployment/deployment-jenkins-demo \
 									${IMAGE_NAME}=${DOCKER_REGISTRY}/${DOCKER_REGISTRY_USERNAME}/${IMAGE_NAME}:${BUILD_NUMBER}
-								kubectl --kubeconfig=${KUBECONFIG} rollout status deployment/deployment-jenkins-demo
+								kubectl -ndemo --kubeconfig=${KUBECONFIG} rollout status deployment/deployment-jenkins-demo
 							"""
 					}
 				}
